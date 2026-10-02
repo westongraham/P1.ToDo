@@ -233,8 +233,35 @@ ul.todo-list {
   align-items: center;
 }
 
-.add-todo-form > input, .todo-item .item-edit-form > .edit-title {
+.add-todo-form > input, .item-edit-heading {
   flex: 1 1 180px;
+}
+
+.item-edit-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.item-edit-heading .edit-title {
+  width: 100%;
+}
+
+.item-edit-heading .overdue-badge {
+  margin-left: 0;
+}
+
+.item-edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.error-hint {
+  display: block;
+  margin-top: 0.25rem;
 }
 
 .date-field {

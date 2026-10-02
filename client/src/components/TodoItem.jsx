@@ -37,16 +37,19 @@ export default function TodoItem({ todo, today, disabled, onToggle, onEdit, onDe
         checked={todo.isComplete}
         disabled={disabled || editing}
         onChange={() => onToggle(todo)}
-        aria-label={`Complete ${todo.title}`}
+        aria-label={`${todo.isComplete ? 'Reopen' : 'Complete'} ${todo.title}`}
         title="Mark complete / incomplete"
       />
 
       {editing ? (
         <form className="item-edit-form" onSubmit={saveEdit}
           onKeyDown={(e) => { if (e.key === 'Escape' && !disabled) cancelEdit(); }}>
-          <input className="edit-title" aria-label="Item title" value={draft} autoFocus
-            maxLength={200} required disabled={disabled}
-            onChange={(e) => setDraft(e.target.value)} />
+          <div className="item-edit-heading">
+            <input className="edit-title" aria-label="Item title" value={draft} autoFocus
+              maxLength={200} required disabled={disabled}
+              onChange={(e) => setDraft(e.target.value)} />
+            {overdue && <span className="overdue-badge">Overdue</span>}
+          </div>
           <label className="date-field">
             <span>Due date (optional)</span>
             <input type="date" value={dueDateDraft} max="9999-12-31" disabled={disabled}
@@ -54,11 +57,12 @@ export default function TodoItem({ todo, today, disabled, onToggle, onEdit, onDe
           </label>
           <button type="button" disabled={disabled || !dueDateDraft}
             onClick={() => setDueDateDraft('')}>Clear date</button>
-          {overdue && <span className="overdue-badge">Overdue</span>}
-          <button className="icon-button primary" type="submit" disabled={disabled || !draft.trim()}
-            title="Save item" aria-label="Save item"><Check size={18} /></button>
-          <button className="icon-button" type="button" disabled={disabled} onClick={cancelEdit}
-            title="Cancel item edit" aria-label="Cancel item edit"><X size={18} /></button>
+          <div className="item-edit-actions">
+            <button className="icon-button primary" type="submit" disabled={disabled || !draft.trim()}
+              title="Save item" aria-label="Save item"><Check size={18} /></button>
+            <button className="icon-button" type="button" disabled={disabled} onClick={cancelEdit}
+              title="Cancel item edit" aria-label="Cancel item edit"><X size={18} /></button>
+          </div>
         </form>
       ) : (
         <div className="item-details">

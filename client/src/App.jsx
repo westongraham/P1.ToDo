@@ -55,7 +55,7 @@ export default function App() {
   useEffect(() => {
     const controller = new AbortController();
     loadLists(controller.signal)
-      .catch((e) => { if (!controller.signal.aborted) setError(e.message); })
+      .catch((e) => { if (!controller.signal.aborted) setError({ message: e.message, kind: 'load' }); })
       .finally(() => { if (!controller.signal.aborted) setListsLoading(false); });
     return () => controller.abort();
   }, [loadLists]);
@@ -81,7 +81,7 @@ export default function App() {
           try {
             await loadLists(controller.signal);
           } catch (refreshError) {
-            if (!controller.signal.aborted) setError(refreshError.message);
+            if (!controller.signal.aborted) setError({ message: refreshError.message, kind: 'load' });
           }
         }
       });
@@ -98,13 +98,13 @@ export default function App() {
       await action();
       return true;
     } catch (e) {
-      setError(e.message);
+      setError({ message: e.message, kind: 'mutation' });
       if (e.status === 404) {
         try {
           await loadLists();
           setItemsVersion((version) => version + 1);
         } catch (refreshError) {
-          setError(refreshError.message);
+          setError({ message: refreshError.message, kind: 'load' });
         }
       }
       return false;
@@ -191,13 +191,14 @@ export default function App() {
       await loadLists();
       setItemsVersion((version) => version + 1);
     } catch (e) {
-      setError(e.message);
+      setError({ message: e.message, kind: 'load' });
     } finally {
       setListsLoading(false);
     }
   }
 
-  const shownError = error || (items.listId === selectedListId ? items.error : null);
+  const shownError = error?.message || (items.listId === selectedListId ? items.error : null);
+  const canRetryLoading = error?.kind !== 'mutation';
 
   return (
     <main className="app" aria-busy={pending || listsLoading}>
@@ -205,11 +206,16 @@ export default function App() {
 
       {shownError && !deleteTarget && (
         <div className="error-banner" role="alert">
-          <span>{shownError}</span>
-          <button className="icon-button" onClick={handleRetry} disabled={controlsDisabled}
-            title="Retry loading lists and items" aria-label="Retry loading lists and items">
-            <RotateCw size={18} />
-          </button>
+          <span>
+            {shownError}
+            {!canRetryLoading && <small className="error-hint">Try the action again.</small>}
+          </span>
+          {canRetryLoading && (
+            <button className="icon-button" onClick={handleRetry} disabled={controlsDisabled}
+              title="Retry loading lists and items" aria-label="Retry loading lists and items">
+              <RotateCw size={18} />
+            </button>
+          )}
         </div>
       )}
 
@@ -229,7 +235,7 @@ export default function App() {
             <span>Sort by</span>
             <select value={sortMode} disabled={controlsDisabled || !itemsReady}
               onChange={(e) => setSortMode(e.target.value)}>
-              <option value="createDate">Create Date</option>
+              <option value="createDate">Created Date</option>
               <option value="dueDate">Due Date</option>
             </select>
           </label>
@@ -244,7 +250,7 @@ export default function App() {
       )}
 
       {deleteTarget && (
-        <DeleteListDialog list={deleteTarget} pending={pending} error={error}
+        <DeleteListDialog list={deleteTarget} pending={pending} error={error?.message}
           onCancel={() => { if (!mutationPending.current) { setDeleteTarget(null); setError(null); } }}
           onConfirm={() => removeList(deleteTarget)} />
       )}
