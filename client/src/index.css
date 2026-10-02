@@ -276,3 +276,35 @@ ul.todo-list {
   color: #cf222e;
   margin-bottom: 1rem;
 }
+
+.sort-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.sort-control select {
+  min-width: 0;
+  padding: 0.5rem;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+}
+
+.todo-item.overdue {
+  border-color: #cf222e;
+}
+
+.overdue-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  background: #ffebe9;
+  color: #a40e26;
+  font-size: 0.75rem;
+  font-weight: 600;
+}

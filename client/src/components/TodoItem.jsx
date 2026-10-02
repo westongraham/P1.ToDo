@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Check, Pencil, Trash2, X } from 'lucide-react';
+import { isOverdue } from '../dateUtils';
 
-export default function TodoItem({ todo, disabled, onToggle, onEdit, onDelete }) {
+export default function TodoItem({ todo, today, disabled, onToggle, onEdit, onDelete }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(todo.title);
   const [dueDateDraft, setDueDateDraft] = useState(todo.dueDate ?? '');
+  const overdue = isOverdue(todo, today);
 
   function startEdit() {
     if (disabled) return;
@@ -29,7 +31,7 @@ export default function TodoItem({ todo, disabled, onToggle, onEdit, onDelete })
   }
 
   return (
-    <li className="todo-item">
+    <li className={`todo-item${overdue ? ' overdue' : ''}`}>
       <input
         type="checkbox"
         checked={todo.isComplete}
@@ -52,6 +54,7 @@ export default function TodoItem({ todo, disabled, onToggle, onEdit, onDelete })
           </label>
           <button type="button" disabled={disabled || !dueDateDraft}
             onClick={() => setDueDateDraft('')}>Clear date</button>
+          {overdue && <span className="overdue-badge">Overdue</span>}
           <button className="icon-button primary" type="submit" disabled={disabled || !draft.trim()}
             title="Save item" aria-label="Save item"><Check size={18} /></button>
           <button className="icon-button" type="button" disabled={disabled} onClick={cancelEdit}
@@ -63,6 +66,7 @@ export default function TodoItem({ todo, disabled, onToggle, onEdit, onDelete })
             onDoubleClick={startEdit}>{todo.title}</span>
           <span className="due-date muted">
             {todo.dueDate ? <>Due: <time dateTime={todo.dueDate}>{todo.dueDate}</time></> : 'No due date'}
+            {overdue && <span className="overdue-badge">Overdue</span>}
           </span>
         </div>
       )}

@@ -8,6 +8,7 @@ import AddTodoForm from './components/AddTodoForm';
 import TodoList from './components/TodoList';
 import ListManager from './components/ListManager';
 import DeleteListDialog from './components/DeleteListDialog';
+import { localToday, sortTodos } from './dateUtils';
 
 export default function App() {
   const [lists, setLists] = useState([]);
@@ -18,11 +19,29 @@ export default function App() {
   const [error, setError] = useState(null);
   const [pending, setPending] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [sortMode, setSortMode] = useState('createDate');
+  const [today, setToday] = useState(localToday);
   const mutationPending = useRef(false);
 
   const selectedList = lists.find((list) => list.id === selectedListId);
   const itemsReady = !!selectedList && items.listId === selectedListId && !items.loading && !items.error;
   const controlsDisabled = pending || listsLoading || !!deleteTarget;
+  const sortedTodos = sortTodos(items.todos, sortMode);
+
+  useEffect(() => {
+    const refreshToday = () => setToday(localToday());
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') refreshToday();
+    };
+    const timer = window.setInterval(refreshToday, 60_000);
+    window.addEventListener('focus', refreshToday);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener('focus', refreshToday);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, []);
 
   const loadLists = useCallback(async (signal) => {
     const loaded = await getLists({ signal });
@@ -206,9 +225,17 @@ export default function App() {
         <section key={selectedListId} className="items-section" aria-labelledby="selected-list-title">
           <h2 id="selected-list-title">{selectedList.title}</h2>
           <AddTodoForm onAdd={handleAdd} disabled={controlsDisabled || !itemsReady} />
+          <label className="sort-control">
+            <span>Sort by</span>
+            <select value={sortMode} disabled={controlsDisabled || !itemsReady}
+              onChange={(e) => setSortMode(e.target.value)}>
+              <option value="createDate">Create Date</option>
+              <option value="dueDate">Due Date</option>
+            </select>
+          </label>
           {!itemsReady && !items.error && <p className="muted" role="status">Loading items...</p>}
           {itemsReady && (
-            <TodoList todos={items.todos} disabled={controlsDisabled}
+            <TodoList todos={sortedTodos} today={today} disabled={controlsDisabled}
               onToggle={(todo) => handleUpdate(todo, todo.title, !todo.isComplete)}
               onEdit={(todo, title, dueDate) => handleUpdate(todo, title, todo.isComplete, dueDate)}
               onDelete={handleDelete} />
