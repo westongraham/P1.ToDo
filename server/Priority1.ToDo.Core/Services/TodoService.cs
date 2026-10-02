@@ -14,18 +14,28 @@ public class TodoService : ITodoService
         _context = context;
     }
 
-    public async Task<List<Todo>> GetAllAsync(CancellationToken ct = default)
+    public async Task<List<Todo>> GetAllAsync(int? listId = null, CancellationToken ct = default)
     {
-        return await _context.Todos.ToListAsync(ct);
+        var query = _context.Todos.AsNoTracking();
+        if (listId.HasValue)
+        {
+            query = query.Where(todo => todo.TodoListId == listId.Value);
+        }
+        return await query.OrderBy(todo => todo.Id).ToListAsync(ct);
     }
 
     public async Task<Todo?> GetByIdAsync(int id, CancellationToken ct = default)
     {
-        return await _context.Todos.FirstOrDefaultAsync(t => t.Id == id, ct);
+        return await _context.Todos.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id, ct);
     }
 
-    public async Task<Todo> CreateAsync(Todo itemToCreate, CancellationToken ct = default)
+    public async Task<Todo?> CreateAsync(Todo itemToCreate, CancellationToken ct = default)
     {
+        if (!await _context.TodoLists.AnyAsync(list => list.Id == itemToCreate.TodoListId, ct))
+        {
+            return null;
+        }
+
         _context.Todos.Add(itemToCreate);
         await _context.SaveChangesAsync(ct);
         return itemToCreate;

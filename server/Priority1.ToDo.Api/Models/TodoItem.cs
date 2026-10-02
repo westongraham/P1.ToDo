@@ -5,7 +5,8 @@ namespace Priority1.ToDo.Api.Models;
 public class TodoItem
 {
     public int Id { get; set; }
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public int TodoListId { get; set; }
     public bool IsComplete { get; set; }
     public DateTime CreateDate { get; set; }
     public DateTime UpdateDate { get; set; }
@@ -16,6 +17,7 @@ public class TodoItem
         {
             Id = todo.Id,
             Title = todo.Title,
+            TodoListId = todo.TodoListId,
             IsComplete = todo.IsComplete,
             CreateDate = todo.CreateDate,
             UpdateDate = todo.UpdateDate
@@ -28,6 +30,7 @@ public class TodoItem
         {
             Id = Id,
             Title = Title,
+            TodoListId = TodoListId,
             IsComplete = IsComplete,
             CreateDate = CreateDate,
             UpdateDate = UpdateDate
