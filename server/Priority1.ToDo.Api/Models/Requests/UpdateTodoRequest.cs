@@ -7,7 +7,8 @@ public class UpdateTodoRequest
 {
     
     [Required]
-    public string Title { get; set; }
+    [MaxLength(200)]
+    public string Title { get; set; } = string.Empty;
 
     public bool IsComplete { get; set; }
 
@@ -16,7 +17,7 @@ public class UpdateTodoRequest
         return new Todo
         {
             Id = id,
-            Title = Title,
+            Title = Title.Trim(),
             IsComplete = IsComplete
         };
     }
