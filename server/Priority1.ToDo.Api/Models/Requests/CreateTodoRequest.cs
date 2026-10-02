@@ -14,13 +14,16 @@ public class CreateTodoRequest
 
     public bool IsComplete { get; set; }
 
+    public DateOnly? DueDate { get; set; }
+
     public Todo ToModel()
     {
         return new Todo
         {
             Title = Title.Trim(),
             TodoListId = TodoListId,
-            IsComplete = IsComplete
+            IsComplete = IsComplete,
+            DueDate = DueDate
         };
     }
 }

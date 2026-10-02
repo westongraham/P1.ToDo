@@ -145,7 +145,9 @@ export default function App() {
 
   function handleUpdate(todo, title, isComplete) {
     return mutate(async () => {
-      const updated = await updateTodo(todo.id, { title, isComplete });
+      const updated = await updateTodo(todo.id, {
+        title, isComplete, dueDate: todo.dueDate ?? null,
+      });
       setItems((current) => ({
         ...current,
         todos: current.todos.map((item) => item.id === updated.id ? updated : item),

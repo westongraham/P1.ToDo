@@ -51,6 +51,7 @@ public class TodoService : ITodoService
 
         todo.Title = itemToUpdate.Title;
         todo.IsComplete = itemToUpdate.IsComplete;
+        todo.DueDate = itemToUpdate.DueDate;
 
         await _context.SaveChangesAsync(ct);
         return todo;
