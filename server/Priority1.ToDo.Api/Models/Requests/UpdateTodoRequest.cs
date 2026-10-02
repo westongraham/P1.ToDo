@@ -12,13 +12,16 @@ public class UpdateTodoRequest
 
     public bool IsComplete { get; set; }
 
+    public DateOnly? DueDate { get; set; }
+
     public Todo ToModel(int id)
     {
         return new Todo
         {
             Id = id,
             Title = Title.Trim(),
-            IsComplete = IsComplete
+            IsComplete = IsComplete,
+            DueDate = DueDate
         };
     }
 }

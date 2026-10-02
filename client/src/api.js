@@ -24,19 +24,19 @@ export function getTodos(listId, { signal } = {}) {
   return fetch(`${TODOS_URL}?listId=${encodeURIComponent(listId)}`, { signal }).then(handle);
 }
 
-export function createTodo({ title, todoListId, isComplete = false }) {
+export function createTodo({ title, todoListId, isComplete = false, dueDate = null }) {
   return fetch(TODOS_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, todoListId, isComplete }),
+    body: JSON.stringify({ title, todoListId, isComplete, dueDate }),
   }).then(handle);
 }
 
-export function updateTodo(id, { title, isComplete }) {
+export function updateTodo(id, { title, isComplete, dueDate = null }) {
   return fetch(`${TODOS_URL}/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, isComplete }),
+    body: JSON.stringify({ title, isComplete, dueDate }),
   }).then(handle);
 }
 
