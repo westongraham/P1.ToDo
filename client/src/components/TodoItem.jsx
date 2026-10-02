@@ -1,12 +1,21 @@
 import { useState } from 'react';
 import { Check, Pencil, Trash2, X } from 'lucide-react';
 
-export default function TodoItem({ todo, disabled, onToggle, onRename, onDelete }) {
+export default function TodoItem({ todo, disabled, onToggle, onEdit, onDelete }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(todo.title);
+  const [dueDateDraft, setDueDateDraft] = useState(todo.dueDate ?? '');
+
+  function startEdit() {
+    if (disabled) return;
+    setDraft(todo.title);
+    setDueDateDraft(todo.dueDate ?? '');
+    setEditing(true);
+  }
 
   function cancelEdit() {
     setDraft(todo.title);
+    setDueDateDraft(todo.dueDate ?? '');
     setEditing(false);
   }
 
@@ -14,7 +23,9 @@ export default function TodoItem({ todo, disabled, onToggle, onRename, onDelete 
     e.preventDefault();
     const trimmed = draft.trim();
     if (!trimmed) return;
-    if (trimmed === todo.title || await onRename(todo, trimmed)) setEditing(false);
+    const dueDate = dueDateDraft || null;
+    const unchanged = trimmed === todo.title && dueDate === (todo.dueDate ?? null);
+    if (unchanged || await onEdit(todo, trimmed, dueDate)) setEditing(false);
   }
 
   return (
@@ -29,28 +40,36 @@ export default function TodoItem({ todo, disabled, onToggle, onRename, onDelete 
       />
 
       {editing ? (
-        <form className="item-edit-form" onSubmit={saveEdit}>
+        <form className="item-edit-form" onSubmit={saveEdit}
+          onKeyDown={(e) => { if (e.key === 'Escape' && !disabled) cancelEdit(); }}>
           <input className="edit-title" aria-label="Item title" value={draft} autoFocus
             maxLength={200} required disabled={disabled}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Escape' && !disabled) cancelEdit(); }} />
+            onChange={(e) => setDraft(e.target.value)} />
+          <label className="date-field">
+            <span>Due date (optional)</span>
+            <input type="date" value={dueDateDraft} max="9999-12-31" disabled={disabled}
+              onChange={(e) => setDueDateDraft(e.target.value)} />
+          </label>
+          <button type="button" disabled={disabled || !dueDateDraft}
+            onClick={() => setDueDateDraft('')}>Clear date</button>
           <button className="icon-button primary" type="submit" disabled={disabled || !draft.trim()}
-            title="Save item title" aria-label="Save item title"><Check size={18} /></button>
+            title="Save item" aria-label="Save item"><Check size={18} /></button>
           <button className="icon-button" type="button" disabled={disabled} onClick={cancelEdit}
             title="Cancel item edit" aria-label="Cancel item edit"><X size={18} /></button>
         </form>
       ) : (
-        <span
-          className={`title ${todo.isComplete ? 'complete' : ''}`}
-          onDoubleClick={() => { if (!disabled) { setDraft(todo.title); setEditing(true); } }}
-        >
-          {todo.title}
-        </span>
+        <div className="item-details">
+          <span className={`title ${todo.isComplete ? 'complete' : ''}`}
+            onDoubleClick={startEdit}>{todo.title}</span>
+          <span className="due-date muted">
+            {todo.dueDate ? <>Due: <time dateTime={todo.dueDate}>{todo.dueDate}</time></> : 'No due date'}
+          </span>
+        </div>
       )}
 
       {!editing && (
         <button className="icon-button" disabled={disabled}
-          onClick={() => { setDraft(todo.title); setEditing(true); }}
+          onClick={startEdit}
           title="Edit item" aria-label={`Edit ${todo.title}`}><Pencil size={18} /></button>
       )}
       {!editing && <button className="icon-button danger" disabled={disabled} onClick={() => onDelete(todo)}

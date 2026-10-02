@@ -228,6 +228,50 @@ ul.todo-list {
   color: #6e7781;
 }
 
+.add-todo-form, .item-edit-form {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.add-todo-form > input, .todo-item .item-edit-form > .edit-title {
+  flex: 1 1 180px;
+}
+
+.date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  font-size: 0.8rem;
+}
+
+.date-field input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.5rem;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.item-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-details .title {
+  display: block;
+}
+
+.due-date {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+}
+
 .error {
   color: #cf222e;
   margin-bottom: 1rem;

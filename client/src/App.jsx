@@ -136,17 +136,17 @@ export default function App() {
     }
   }
 
-  function handleAdd(title) {
+  function handleAdd(title, dueDate) {
     return mutate(async () => {
-      const created = await createTodo({ title, todoListId: selectedListId });
+      const created = await createTodo({ title, dueDate, todoListId: selectedListId });
       setItems((current) => ({ ...current, todos: [...current.todos, created] }));
     });
   }
 
-  function handleUpdate(todo, title, isComplete) {
+  function handleUpdate(todo, title, isComplete, dueDate = todo.dueDate ?? null) {
     return mutate(async () => {
       const updated = await updateTodo(todo.id, {
-        title, isComplete, dueDate: todo.dueDate ?? null,
+        title, isComplete, dueDate,
       });
       setItems((current) => ({
         ...current,
@@ -210,7 +210,7 @@ export default function App() {
           {itemsReady && (
             <TodoList todos={items.todos} disabled={controlsDisabled}
               onToggle={(todo) => handleUpdate(todo, todo.title, !todo.isComplete)}
-              onRename={(todo, title) => handleUpdate(todo, title, todo.isComplete)}
+              onEdit={(todo, title, dueDate) => handleUpdate(todo, title, todo.isComplete, dueDate)}
               onDelete={handleDelete} />
           )}
         </section>
